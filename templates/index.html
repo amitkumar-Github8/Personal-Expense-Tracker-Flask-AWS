@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Expense Tracker ✨</h1>
+        
+        <div class="card form-card">
+            <h2>Add New Expense</h2>
+            <form id="expense-form" action="/add" method="post">
+                <input type="date" name="date" required>
+                <select name="category" required>
+                    <option value="" disabled selected>Category</option>
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="number" name="amount" placeholder="Amount" min="0.01" step="0.01" required>
+                <input type="text" name="description" placeholder="Description" required style="grid-column: 1 / -1;">
+                <button type="submit">Add Expense</button>
+            </form>
+        </div>
+
+        <div class="card expenses-card">
+            <h2>Total Expenses: <span id="total-amount">${{ "%.2f"|format(total_expenses) }}</span></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th style="text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+              <tbody>
+    {% for expense in expenses %}
+    <tr>
+        <td>{{ expense.date }}</td>
+        <td>{{ expense.category }}</td>
+        <td>{{ expense.description }}</td>
+        <td class="amount">${{ "%.2f"|format(expense.amount) }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('expense-form').addEventListener('submit', async function (event) {
+            // Prevent the default form submission (which causes a page reload)
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                // Send the form data to the server using fetch
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Get the JSON data from the server's response
+                const result = await response.json();
+
+                if (result.success) {
+                    // --- Update the page dynamically ---
+                    
+                    // 1. Update the total expenses display
+                    const totalAmountElement = document.getElementById('total-amount');
+                    totalAmountElement.textContent = `$${result.total_expenses.toFixed(2)}`;
+                    
+                    // 2. Add the new expense to the table
+                    const tableBody = document.getElementById('expense-table-body');
+                    const newRow = document.createElement('tr');
+                    
+                    const expense = result.expense;
+                    newRow.innerHTML = `
+                        <td>${expense.date}</td>
+                        <td><span class="category-tag category-${expense.category.toLowerCase()}">${expense.category}</span></td>
+                        <td>${expense.description}</td>
+                        <td class="amount">$${expense.amount.toFixed(2)}</td>
+                    `;
+                    
+                    // Add the new row to the top of the table for immediate visibility
+                    tableBody.prepend(newRow);
+                    
+                    // 3. Reset the form fields for the next entry
+                    form.reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding the expense.');
+            }
+        });
+    </script>
+</body>
+</html>
