@@ -101,12 +101,7 @@ ExpenseTrackerApp/
 - Python 3.8 or higher
 - pip
 
----
-
-## License
-
-MIT License
-
+  
 ---
 
 **This project demonstrates full-stack development, cloud deployment, and infrastructure monitoring in one practical application.**
