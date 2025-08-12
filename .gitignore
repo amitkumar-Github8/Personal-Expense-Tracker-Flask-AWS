@@ -1,7 +1,0 @@
-venv/
-__pycache__/
-*.pyc
-expense_tracker_dev.db
-.env
-instance/
-*.log
