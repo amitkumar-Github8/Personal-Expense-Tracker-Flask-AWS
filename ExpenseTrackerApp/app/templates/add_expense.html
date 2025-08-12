@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Add Expense - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Add New Expense
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <form action="{{ url_for('main.add_expense') }}" method="POST" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="bi bi-card-text text-primary"></i> Description *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="description" 
+                                       name="description" 
+                                       placeholder="e.g., Lunch at restaurant"
+                                       required
+                                       maxlength="255">
+                                <div class="form-text">Brief description of your expense</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="bi bi-currency-dollar text-success"></i> Amount *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="amount" 
+                                           name="amount" 
+                                           placeholder="0.00"
+                                           step="0.01" 
+                                           min="0.01"
+                                           required>
+                                </div>
+                                <div class="form-text">Amount in dollars</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category_id" class="form-label">
+                                    <i class="bi bi-tags text-warning"></i> Category *
+                                </label>
+                                <select class="form-select" id="category_id" name="category_id" required>
+                                    <option value="">Select a category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">
+                                            {{ category.icon }} {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Choose the appropriate category</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="bi bi-calendar3 text-info"></i> Date
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="date" 
+                                       name="date">
+                                <div class="form-text">When did this expense occur?</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">
+                            <i class="bi bi-journal-text text-secondary"></i> Notes (Optional)
+                        </label>
+                        <textarea class="form-control" 
+                                  id="notes" 
+                                  name="notes" 
+                                  rows="3" 
+                                  placeholder="Additional details about this expense..."
+                                  maxlength="500"></textarea>
+                        <div class="form-text">Any additional information</div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Add Expense
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tips Card -->
+        <div class="card mt-4 border-0 bg-light">
+            <div class="card-header bg-transparent">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb text-warning"></i> Tips for Better Expense Tracking
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                            <div>
+                                <strong>Be Specific</strong>
+                                <p class="small text-muted mb-0">Use clear descriptions like "Grocery shopping at Walmart"</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-clock-fill text-info me-2 mt-1"></i>
+                            <div>
+                                <strong>Track Immediately</strong>
+                                <p class="small text-muted mb-0">Add expenses as soon as they happen</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-tags-fill text-primary me-2 mt-1"></i>
+                            <div>
+                                <strong>Use Categories</strong>
+                                <p class="small text-muted mb-0">Proper categorization helps with analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default
+    const dateInput = document.getElementById('date');
+    if (!dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+
+    // Auto-focus on description
+    document.getElementById('description').focus();
+
+    // Format amount on blur
+    document.getElementById('amount').addEventListener('blur', function() {
+        if (this.value && !isNaN(this.value)) {
+            this.value = parseFloat(this.value).toFixed(2);
+        }
+    });
+});
+</script>
+{% endblock %}
