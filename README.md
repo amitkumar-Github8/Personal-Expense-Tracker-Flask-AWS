@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Personal-Expense-Tracker-Flask-AWS
-=======
-
 # Personal Expense Tracker
 
 This is a simple web application to track your personal expenses. You can add, edit, and delete expenses, organize them by category, and view summaries.
